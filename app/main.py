@@ -6,6 +6,8 @@ from fastapi import FastAPI
 from fastapi import status
 from fastapi.responses import JSONResponse
 
+from app.schemas import UserCreateRequest, UserCreateResponse
+
 
 app = FastAPI()
 users_db = dict()
@@ -35,6 +37,23 @@ def user_create():
 
     users_db[user_id] = new_user
     return new_user
+
+
+# Serialization (Marshaling)
+
+
+@app.post("/users/create2/", response_model=UserCreateResponse)
+async def user_create2(user_data: UserCreateRequest):
+    user = {
+        "id": random.randint(1, 10000),
+        "name": user_data.name,
+        "age": user_data.age,
+        "is_active": user_data.is_active if user_data.is_active else True,
+    }
+
+    users_db[user["id"]] = user
+
+    return user
 
 
 @app.get("/users/list/")
