@@ -1,100 +1,24 @@
-from datetime import datetime
-import random
-import string
+from fastapi import FastAPI, Depends
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-from fastapi import FastAPI
-from fastapi import status
-from fastapi.responses import JSONResponse
-
-from app.schemas import UserCreateRequest, UserCreateResponse
+from app.database import get_db
+from app.models import Post
 
 
-app = FastAPI()
-users_db = dict()
+app = FastAPI(
+    title="Chesnokdek achchiq yangiliklar",
+    description="Chesnokuz - news website inspired from Qalampir.uz, built in FastAPI",
+)
 
 
-def generate_random_string(length):
-    characters = string.ascii_letters + string.digits
-    random_string = "".join(random.choices(characters, k=length))
-    return random_string
+@app.get("/posts/")
+async def get_posts(session: Session = Depends(get_db)):
+    stmt = select(Post).order_by(Post.created_at.desc())
+    res = session.execute(stmt)
+    return res.scalars().all()
 
 
-@app.post("/users/create/")
-def user_create():
-    # user_id = str(uuid.uuid4())
-    user_id = random.randrange(1, 10000)
-    name = generate_random_string(10)
-    age = random.randint(1, 60)
-    is_active = random.choice([True, False])
-
-    new_user = {
-        "id": user_id,
-        "name": name,
-        "age": age,
-        "is_active": is_active,
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    }
-
-    users_db[user_id] = new_user
-    return new_user
-
-
-# Serialization (Marshaling)
-
-
-@app.post("/users/create2/", response_model=UserCreateResponse)
-async def user_create2(user_data: UserCreateRequest):
-    user = {
-        "id": random.randint(1, 10000),
-        "name": user_data.name,
-        "age": user_data.age,
-        "is_active": user_data.is_active if user_data.is_active else True,
-    }
-
-    users_db[user["id"]] = user
-
-    return user
-
-
-@app.get("/users/list/")
-def users_list():
-    return users_db
-
-
-@app.get("/users/{user_id}/")
-def users_detail(user_id: int):
-    try:
-        return users_db[user_id]
-    except KeyError:
-        return JSONResponse(
-            content={"error": "User not found"}, status_code=status.HTTP_404_NOT_FOUND
-        )
-
-
-@app.put("/users/{user_id}/")
-def user_update(user_id: int):
-    try:
-        user = users_db[user_id]
-        user["name"] = generate_random_string(10)
-        user["age"] = random.randint(1, 60)
-        users_db[user_id] = user
-
-        return user
-    except KeyError:
-        return JSONResponse(
-            content={"error": "User not found"}, status_code=status.HTTP_404_NOT_FOUND
-        )
-
-
-@app.delete("/users/{user_id}/")
-def user_delete(user_id: int):
-    try:
-        del users_db[user_id]
-        return JSONResponse(status_code=204)
-    except KeyError:
-        return JSONResponse(
-            content={"error": "User not found"}, status_code=status.HTTP_404_NOT_FOUND
-        )
-
-
-# API nima?
+@app.post("/post/create/")
+async def post_create():
+    pass
