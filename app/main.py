@@ -6,6 +6,7 @@ from app.database import get_db
 from app.models import Post
 from app.utils import generate_slug
 from app.schemas import PostCreateRequest, PostListResponse
+from app.routers import posts_router
 
 
 app = FastAPI(
@@ -13,17 +14,7 @@ app = FastAPI(
     description="Chesnokuz - news website inspired from Qalampir.uz, built in FastAPI",
 )
 
-
-@app.get("/posts/", response_model=list[PostListResponse])
-async def get_posts(is_active: bool = None, session: Session = Depends(get_db)):
-    stmt = select(Post)
-
-    if is_active is not None:
-        stmt = stmt.where(Post.is_active == is_active)
-
-    stmt = stmt.order_by(Post.created_at.desc())
-    res = session.execute(stmt)
-    return res.scalars().all()
+app.include_router(posts_router)
 
 
 @app.get("/post/{slug}/", response_model=PostListResponse)
@@ -70,6 +61,6 @@ async def post_delete():
     pass
 
 
-@app.deactivate("/posts/{post_id}/")
+@app.patch("/posts/{post_id}/")
 async def post_deactivate():
     pass
