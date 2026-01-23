@@ -1,11 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 
-from app.database import get_db
-from app.models import Post
-from app.utils import generate_slug
-from app.schemas import PostCreateRequest, PostListResponse
 from app.routers import posts_router
 
 
@@ -15,52 +9,3 @@ app = FastAPI(
 )
 
 app.include_router(posts_router)
-
-
-@app.get("/post/{slug}/", response_model=PostListResponse)
-async def get_post(slug: str, session: Session = Depends(get_db)):
-    stmt = select(Post).where(Post.slug.like(f"%{slug}%"))
-    res = session.execute(stmt)
-    post = res.scalars().first()
-
-    if not post:
-        raise HTTPException(status_code=404, detail="Post not found")
-
-    return post
-
-
-@app.post("/post/create/")
-async def post_create(
-    create_data: PostCreateRequest, session: Session = Depends(get_db)
-):
-    post = Post(
-        title=create_data.title,
-        body=create_data.body,
-        slug=generate_slug(create_data.title),
-    )
-
-    session.add(post)
-    session.commit()
-    session.refresh(post)
-
-    return post
-
-
-@app.put("/posts/{post_id}/")
-async def post_update():
-    pass
-
-
-@app.patch("/posts/{post_id}/")
-async def post_update_patch():
-    pass
-
-
-@app.delete("/posts/{post_id}/")
-async def post_delete():
-    pass
-
-
-@app.patch("/posts/{post_id}/")
-async def post_deactivate():
-    pass
