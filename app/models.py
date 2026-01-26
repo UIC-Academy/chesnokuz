@@ -16,16 +16,18 @@ class BaseModel(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=func.now(), onupdate=func.now()
     )
-    
+
 
 class User(BaseModel):
     __tablename__ = "users"
-    
+
     email: Mapped[str] = mapped_column(String(50), unique=True, nullable=True)
     password_hash: Mapped[str] = mapped_column(String(100), nullable=False)
     first_name: Mapped[str] = mapped_column(String(50), nullable=True)
     last_name: Mapped[str] = mapped_column(String(50), nullable=True)
-    profession_id: Mapped[int] = mapped_column(ForeignKey("professions.id"), nullable=True)
+    profession_id: Mapped[int] = mapped_column(
+        ForeignKey("professions.id"), nullable=True
+    )
     bio: Mapped[str] = mapped_column(Text, nullable=True)
     posts_count: Mapped[int] = mapped_column(BigInteger, default=0)
     posts_read_count: Mapped[int] = mapped_column(BigInteger, default=0)
@@ -33,7 +35,7 @@ class User(BaseModel):
     is_staff: Mapped[bool] = mapped_column(Boolean, default=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    
+
     def __repr__(self):
         return f"User({self.first_name} {self.last_name})"
 
@@ -54,36 +56,36 @@ class Post(BaseModel):
 
     def __repr__(self):
         return {self.title}
-    
+
 
 class Category(Base):
     __tablename__ = "categories"
-    
+
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     slug: Mapped[str] = mapped_column(String(100), unique=True)
-    
+
     def __repr__(self):
         return f"Category({self.name})"
-    
+
 
 class Tag(Base):
     __tablename__ = "tags"
-    
+
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     slug: Mapped[str] = mapped_column(String(100), unique=True)
-    
+
     def __repr__(self):
         return f"Tag({self.name})"
-    
+
 
 class Profession(Base):
     __tablename__ = "professions"
-    
+
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
-    
+
     def __repr__(self):
         return f"Profession({self.name})"
 
@@ -93,7 +95,7 @@ class Media(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     url: Mapped[str] = mapped_column(String(100))
-    
+
     def __repr__(self):
         return f"Media({self.url})"
 
@@ -107,10 +109,10 @@ class PostMedia(Base):
 
 class Comment(BaseModel):
     __tablename__ = "comments"
-    
+
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     text: Mapped[str] = mapped_column(Text)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    
+
     def __repr__(self):
         return f"Comment({self.text})"
