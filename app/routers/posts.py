@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 
-from app.models import Post
+from app.models import Post, post_tag_m2m_table, Tag
 from app.database import db_dep
 from app.schemas import PostListResponse, PostCreateRequest, PostUpdateRequest
 from app.utils import generate_slug
@@ -11,11 +11,26 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
 @router.get("/", response_model=list[PostListResponse])
-async def get_posts(session: db_dep, is_active: bool = None):
-    stmt = select(Post)
+async def get_posts(
+    session: db_dep,
+    is_active: bool | None = None,
+    category_id: int | None = None,
+    tag_id: int | None = None,
+):
+    stmt = (
+        select(Post)
+        .join(post_tag_m2m_table, Post.id == post_tag_m2m_table.c.post_id)
+        .join(Tag, post_tag_m2m_table.c.tag_id == Tag.id)
+    )
 
     if is_active is not None:
         stmt = stmt.where(Post.is_active == is_active)
+
+    if category_id:
+        stmt = stmt.where(Post.category_id == category_id)
+
+    if tag_id:
+        stmt = stmt.where(Tag.id == tag_id)
 
     stmt = stmt.order_by(Post.created_at.desc())
     res = session.execute(stmt)

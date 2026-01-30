@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class PostCreateRequest(BaseModel):
@@ -73,3 +73,55 @@ class ProfessionListResponse(BaseModel):
 
 class ProfessionUpdateRequest(BaseModel):
     name: str
+
+
+class WeatherCoord(BaseModel):
+    lon: float
+    lat: float
+
+
+class WeatherInline(BaseModel):
+    id: int
+    main: str
+    description: str
+    icon: str
+
+
+class WeatherMainInline(BaseModel):
+    temp: float
+    feels_like: float
+    temp_min: float
+    temp_max: float
+    pressure: int
+    humidity: int
+    sea_level: int
+    grnd_level: int
+
+
+class WeatherResponse(BaseModel):
+    coord: WeatherCoord
+    weather: list[WeatherInline]
+    # base: str
+    # main: WeatherMainInline
+    # visibility: int
+    # wind: dict[str, float] | None = None
+    # rain: dict[str, float] | None = None
+    # clouds: dict[str, int] | None = None
+    # dt: int
+    # sys: dict[str, int | str] | None = None
+    # timezone: int
+    # id: int
+    # name: str
+    # cod: int
+    
+    
+class UserCreateRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+    first_name: str | None = None
+    last_name: str | None = None

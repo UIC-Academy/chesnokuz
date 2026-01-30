@@ -1,3 +1,4 @@
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
 from sqlalchemy import (
@@ -9,6 +10,8 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     func,
+    Table,
+    Column,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -45,6 +48,10 @@ class User(BaseModel):
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
+    posts: Mapped[list["Post"]] = relationship(
+        back_populates="user", lazy="raise_on_sql"
+    )
+
     def __repr__(self):
         return f"User({self.first_name} {self.last_name})"
 
@@ -63,6 +70,14 @@ class Post(BaseModel):
     mins_read: Mapped[int] = mapped_column(BigInteger, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    user: Mapped["User"] = relationship(back_populates="posts")
+    category: Mapped["Category"] = relationship(back_populates="posts")
+    tags: Mapped[list["Tag"]] = relationship(
+        secondary="post_tag",
+        back_populates="posts",
+        lazy="raise_on_sql",
+    )
+
     def __repr__(self):
         return {self.title}
 
@@ -73,6 +88,10 @@ class Category(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     slug: Mapped[str] = mapped_column(String(100), unique=True)
+    
+    posts: Mapped[list["Post"]] = relationship(
+        back_populates="category", lazy="raise_on_sql"
+    )
 
     def __repr__(self):
         return f"Category({self.name})"
@@ -84,6 +103,10 @@ class Tag(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     slug: Mapped[str] = mapped_column(String(100), unique=True)
+    
+    posts: Mapped[list["Post"]] = relationship(
+        secondary="post_tag", back_populates="tags", lazy="raise_on_sql"
+    )
 
     def __repr__(self):
         return f"Tag({self.name})"
@@ -163,3 +186,11 @@ class Like(Base):
 
     def __repr__(self):
         return f"Like({self.id})"
+
+
+post_tag_m2m_table = Table(
+    "post_tag",
+    Base.metadata,
+    Column("post_id", BigInteger, ForeignKey("post.id"), primary_key=True),
+    Column("tag_id", BigInteger, ForeignKey("tags.id"), primary_key=True),
+)
