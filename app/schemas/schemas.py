@@ -113,8 +113,8 @@ class WeatherResponse(BaseModel):
     # id: int
     # name: str
     # cod: int
-    
-    
+
+
 class UserCreateRequest(BaseModel):
     email: EmailStr
     password: str

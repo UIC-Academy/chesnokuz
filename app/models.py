@@ -88,7 +88,7 @@ class Category(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     slug: Mapped[str] = mapped_column(String(100), unique=True)
-    
+
     posts: Mapped[list["Post"]] = relationship(
         back_populates="category", lazy="raise_on_sql"
     )
@@ -103,7 +103,7 @@ class Tag(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     slug: Mapped[str] = mapped_column(String(100), unique=True)
-    
+
     posts: Mapped[list["Post"]] = relationship(
         secondary="post_tag", back_populates="tags", lazy="raise_on_sql"
     )
