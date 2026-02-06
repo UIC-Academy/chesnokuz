@@ -1,6 +1,15 @@
 from fastapi import FastAPI
 
-from app.routers import *  # noqa
+from app.routers import (
+    auth_router,
+    posts_router,
+    tags_router,
+    category_router,
+    profession_router,
+    weather_router,
+    users_router,
+    lesson_router,
+)
 
 
 app = FastAPI(

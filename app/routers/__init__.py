@@ -5,7 +5,7 @@ from .profession import router as profession_router
 from .weather import router as weather_router
 from .users import router as users_router
 from .lesson import router as lesson_router
-from .auth import router as auth_router
+from .auth import auth_router
 
 
 __all__ = [

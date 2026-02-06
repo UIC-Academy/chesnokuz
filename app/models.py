@@ -47,9 +47,13 @@ class User(BaseModel):
     is_staff: Mapped[bool] = mapped_column(Boolean, default=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+    deleted_email: Mapped[str] = mapped_column(String(50), nullable=True)
 
     posts: Mapped[list["Post"]] = relationship(
         back_populates="user", lazy="raise_on_sql"
+    )
+    profession: Mapped["Profession"] = relationship(
+        back_populates="users", lazy="raise_on_sql"
     )
 
     def __repr__(self):
@@ -117,6 +121,10 @@ class Profession(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
+
+    users: Mapped[list["User"]] = relationship(
+        back_populates="profession", lazy="raise_on_sql"
+    )
 
     def __repr__(self):
         return f"Profession({self.name})"
