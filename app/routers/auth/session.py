@@ -1,13 +1,13 @@
 import secrets
 from datetime import datetime, timezone, timedelta
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from sqlalchemy import select, delete
 
 from app.database import db_dep
 from app.models import User, UserSessionToken
 from app.dependencies import session_auth_dep
-from app.schemas import SessionTokenResponse, UserLoginRequest, UserProfileResponse
+from app.schemas import UserLoginRequest, UserProfileResponse
 from app.utils import verify_password
 from app.config import settings
 
@@ -15,8 +15,8 @@ from app.config import settings
 router = APIRouter(prefix="/session", tags=["Auth"])
 
 
-@router.post("/login/", response_model=SessionTokenResponse)
-async def login(db: db_dep, login_data: UserLoginRequest):
+@router.post("/login/", status_code=200)
+async def login(db: db_dep, login_data: UserLoginRequest, response: Response):
     stmt = select(User).where(User.email == login_data.email)
     res = db.execute(stmt)
     user = res.scalars().first()
@@ -43,7 +43,14 @@ async def login(db: db_dep, login_data: UserLoginRequest):
     db.commit()
     db.refresh(new_session)
 
-    return {"sessionId": sessionId}
+    response.set_cookie(
+        key="session_id",
+        value=sessionId,
+        httponly=True,
+        secure=True,  # HTTPS
+        samesite="strict",
+        max_age=settings.SESSION_ID_EXPIRE_DAYS * 24 * 60 * 60,
+    )
 
 
 @router.get("/profile/", response_model=UserProfileResponse)

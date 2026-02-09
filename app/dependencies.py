@@ -1,7 +1,7 @@
 from typing import Annotated
 from datetime import datetime, timezone
 
-from fastapi import Depends, HTTPException, Cookie
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
@@ -35,16 +35,11 @@ def get_current_user(session: db_dep, credentials: basic_auth_dep):
 current_user_basic_dep = Annotated[User, Depends(get_current_user)]
 
 
-def get_session_from_cookie(sessionId: Annotated[str | None, Cookie()] = None):
+def get_current_user_session(session: db_dep, request: Request):
+    sessionId = request.cookies.get("session_id")
     if not sessionId:
-        raise HTTPException(status_code=401, detail="Cookie not found")
-    return sessionId
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
-
-sessionId_dep = Annotated[str, Depends(get_session_from_cookie)]
-
-
-def get_current_user_session(session: db_dep, sessionId: sessionId_dep):
     stmt = select(UserSessionToken).where(UserSessionToken.token == sessionId)
     session_obj = (session.execute(stmt)).scalars().first()
 
