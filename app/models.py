@@ -55,6 +55,9 @@ class User(BaseModel):
     profession: Mapped["Profession"] = relationship(
         back_populates="users", lazy="raise_on_sql"
     )
+    user_sessions: Mapped[list["UserSessionToken"]] = relationship(
+        back_populates="user", lazy="raise_on_sql"
+    )
 
     def __repr__(self):
         return f"User({self.first_name} {self.last_name})"
@@ -180,6 +183,23 @@ class Device(BaseModel):
 
     def __repr__(self):
         return f"Device({self.user_agent})"
+
+
+class UserSessionToken(Base):
+    __tablename__ = "user_sessions"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"))
+    token: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=func.now()
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    user: Mapped["User"] = relationship(back_populates="user_sessions")
+
+    def __str__(self):
+        return self.user_id
 
 
 class Like(Base):
