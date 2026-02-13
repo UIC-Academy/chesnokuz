@@ -18,9 +18,9 @@ Description: News platform that authors can post news, regular users read them a
 ### Posts
 
 R1: Most searched keywords.
-R2: Users should be able to filter posts by category and tag, while also seeing list of categories and tags.
-R3: Users should be able to see list of last 5 trending posts.
-R4: Users should see current weather in Tashkent.
+R2: Users should be able to filter posts by category and tag, while also seeing list of categories and tags. +
+R3: Users should be able to see list of last 5 trending posts. +
+R4: Users should see current weather in Tashkent. +
 R5: Users should be able to search posts (by title, category and tag) and authors.
 R6: I should be able to know analytics about posts: what people are liking most?
 R7: Admins should be able to log in/logout to business panel.
