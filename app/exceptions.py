@@ -1,8 +1,6 @@
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from fastapi import status
-
 
 
 class AnasbekSleepyException(Exception):
@@ -20,15 +18,9 @@ async def zero_division_error_exc(
             "message": exc.args[0],
         },
     )
-    
 
-async def anasbek_sleepy_error_exc(
-    request: Request,
-    exc: AnasbekSleepyException
-):
+
+async def anasbek_sleepy_error_exc(request: Request, exc: AnasbekSleepyException):
     return JSONResponse(
-        status_code=status.HTTP_406_NOT_ACCEPTABLE,
-        content={
-            "message": exc.msg
-        }
+        status_code=status.HTTP_406_NOT_ACCEPTABLE, content={"message": exc.msg}
     )

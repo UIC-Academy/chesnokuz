@@ -10,7 +10,12 @@ from app.routers import (
     users_router,
     lesson_router,
 )
-from app.exceptions import zero_division_error_exc, AnasbekSleepyException, anasbek_sleepy_error_exc
+from app.exceptions import (
+    zero_division_error_exc,
+    AnasbekSleepyException,
+    anasbek_sleepy_error_exc,
+)
+from app.admin.settings import admin
 
 
 app = FastAPI(
@@ -31,3 +36,5 @@ app.include_router(lesson_router)
 
 app.add_exception_handler(ZeroDivisionError, zero_division_error_exc)
 app.add_exception_handler(AnasbekSleepyException, anasbek_sleepy_error_exc)
+
+admin.mount_to(app=app)

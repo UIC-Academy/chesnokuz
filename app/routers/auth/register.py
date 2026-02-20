@@ -23,11 +23,15 @@ async def register_user(db: db_dep, data: UserRegisterRequest):
     if res:
         raise HTTPException(status_code=400, detail="User already exists")
 
-    user = User(email=data.email, password_hash=hash_password(data.password), is_active=False)
-    
+    user = User(
+        email=data.email, password_hash=hash_password(data.password), is_active=False
+    )
+
     secret_code = secrets.token_hex(16)
-    send_email(data.email, "Email confirmation", f"Your confirmation code is {secret_code}")
-    redis_client.setex(secret_code, 120, user.email) # 5678 : email
+    send_email(
+        data.email, "Email confirmation", f"Your confirmation code is {secret_code}"
+    )
+    redis_client.setex(secret_code, 120, user.email)  # 5678 : email
 
     stmt = select(User)
     existing_user = db.execute(stmt).scalars().first()
@@ -36,13 +40,12 @@ async def register_user(db: db_dep, data: UserRegisterRequest):
         user.is_active = True
         user.is_staff = True
         user.is_superuser = True
-    
+
     db.add(user)
     db.commit()
 
     return JSONResponse(
-        status_code=201,
-        content={"message": "Email confirmation sent to your email."}
+        status_code=201, content={"message": "Email confirmation sent to your email."}
     )
 
 
@@ -50,10 +53,10 @@ async def register_user(db: db_dep, data: UserRegisterRequest):
 async def verify_register(db: db_dep, secret_code: str):
     email = redis_client.get(secret_code)
     print(email.decode("utf-8"))
-    
+
     if not email:
         raise HTTPException(status_code=400, detail="Invalid code")
-    
+
     stmt = select(User).where(User.email == email.decode("utf-8"))
     user = db.execute(stmt).scalars().first()
 
@@ -64,6 +67,5 @@ async def verify_register(db: db_dep, secret_code: str):
     db.commit()
 
     return JSONResponse(
-        status_code=200,
-        content={"message": "User registered successfully"}
+        status_code=200, content={"message": "User registered successfully"}
     )

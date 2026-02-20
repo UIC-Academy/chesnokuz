@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
@@ -23,7 +23,7 @@ async def login(db: db_dep, login_data: UserLoginRequest):
         raise HTTPException(status_code=404, detail="User not found")
     if not verify_password(login_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
+
     access_token, refresh_token = generate_jwt_tokens(user.id)
 
     return {
@@ -38,8 +38,10 @@ async def refresh(db: db_dep, data: RefreshTokenRequest):
 
     exp_time = datetime.fromtimestamp(decoded_data["exp"], tz=timezone.utc)
     if exp_time < datetime.now(timezone.utc):
-        raise HTTPException(status_code=401, detail="Refresh token expired. Please log in.")
-    
+        raise HTTPException(
+            status_code=401, detail="Refresh token expired. Please log in."
+        )
+
     user_id = decoded_data["sub"]
     access_token = generate_jwt_tokens(user_id, is_access_only=True)
 

@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     DB_NAME: str
 
     ALGORITHM: str = "HS256"
-    
+
     # Email settings
     EMAIL_ADDRESS: str = "voidpointer07@gmail.com"
     SMTP_SERVER: str = "smtp.gmail.com"

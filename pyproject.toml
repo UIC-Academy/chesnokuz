@@ -15,6 +15,7 @@ dependencies = [
     "python-jose>=3.5.0",
     "redis>=7.2.0",
     "sqlalchemy>=2.0.45",
+    "starlette-admin>=0.16.0",
     "uvicorn>=0.40.0",
     "zxcvbn>=4.5.0",
 ]
