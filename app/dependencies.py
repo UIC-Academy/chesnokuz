@@ -81,7 +81,7 @@ def get_current_user_jwt(session: db_dep, credentials: HTTPAuthorizationCredenti
     user_id = decoded["sub"]
     exp = datetime.fromtimestamp(decoded["exp"], tz=timezone.utc)
 
-    if exp < datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES):
+    if exp < datetime.now(timezone.utc):
         raise HTTPException(status_code=401, detail="Token expired.")
 
     stmt = (
