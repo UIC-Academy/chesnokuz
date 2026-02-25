@@ -1,17 +1,20 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from sqlalchemy import select
 
 from app.models import Post, post_tag_m2m_table, Tag
 from app.database import db_dep
 from app.schemas import PostListResponse, PostCreateRequest, PostUpdateRequest
 from app.utils import generate_slug
+from app.limiter import limiter
 
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
 @router.get("/", response_model=list[PostListResponse])
+@limiter.limit("2/minute")
 async def get_posts(
+    request: Request,
     session: db_dep,
     is_active: bool | None = None,
     category_id: int | None = None,
