@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil
 
 from fastapi import APIRouter, Header, HTTPException, Form, UploadFile
+from fastapi.responses import HTMLResponse
 from sqlalchemy import select
 
 from app.database import db_dep
@@ -96,3 +97,8 @@ async def create_upload_file(file: UploadFile, db: db_dep):
 @router.get("/exc/")
 async def test_exception():
     raise AnasbekSleepyException("Why are you sleeping?")
+
+
+@router.get("/htmlres/", response_class=HTMLResponse)
+async def html_resp():
+    return "<h1>HTML Response</h1>"

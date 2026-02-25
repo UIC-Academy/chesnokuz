@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
@@ -62,3 +63,10 @@ app.add_middleware(
 app.add_middleware(TimeCounterMiddleware)
 
 app.state.limiter = limiter
+
+
+app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static",
+)
