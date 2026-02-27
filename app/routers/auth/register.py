@@ -10,7 +10,8 @@ from app.schemas import (
     UserRegisterRequest,
     UserRegisterResponse,
 )
-from app.utils import hash_password, send_email, redis_client
+from app.utils import hash_password, redis_client
+from app.celery import send_email_celery
 
 router = APIRouter(prefix="/register", tags=["Auth"])
 
@@ -28,7 +29,7 @@ async def register_user(db: db_dep, data: UserRegisterRequest):
     )
 
     secret_code = secrets.token_hex(16)
-    send_email(
+    send_email_celery.delay(
         data.email, "Email confirmation", f"Your confirmation code is {secret_code}"
     )
     redis_client.setex(secret_code, 120, user.email)  # 5678 : email

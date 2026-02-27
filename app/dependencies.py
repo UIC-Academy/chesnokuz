@@ -95,3 +95,22 @@ def get_current_user_jwt(
 
 
 current_user_jwt_dep = Annotated[User, Depends(get_current_user_jwt)]
+
+
+LANGUAGES = {
+    "uz": "O'zbekcha",
+    "en": "English",
+    "ru": "Русский",
+}
+
+DEFAULT_LANG = "en"
+
+
+def get_lang(request: Request) -> str:
+    """Extract language from request headers"""
+    header = request.headers.get("accept-language", "")
+    lang = header.split(",")[0].split(";")[0]
+    return lang if lang in LANGUAGES else DEFAULT_LANG
+
+
+lang_dep = Annotated[str, Depends(get_lang)]

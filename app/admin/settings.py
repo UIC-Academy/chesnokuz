@@ -1,8 +1,8 @@
 from starlette_admin.contrib.sqla import Admin
 
 from app.database import engine
-from app.models import User
-from app.admin.views import UserAdminView
+from app.models import User, Post
+from app.admin.views import UserAdminView, PostAdminView
 from app.admin.auth import JSONAuthProvider
 
 
@@ -15,3 +15,4 @@ admin = Admin(
 
 
 admin.add_view(UserAdminView(User, icon="fa fa-user"))
+admin.add_view(PostAdminView(Post, icon="fa fa-video"))

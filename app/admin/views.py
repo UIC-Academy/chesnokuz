@@ -37,3 +37,15 @@ class UserAdminView(ModelView):
         "posts_read_count",
     ]
     exclude_fields_from_edit = ["id", "password_hash", "created_at", "updated_at"]
+
+
+class PostAdminView(ModelView):
+    fields = [
+        "id",
+        "user",
+        "title",
+        "title_ru",
+        "title_uz",
+        "body",
+        "slug",
+    ]

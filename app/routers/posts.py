@@ -1,29 +1,44 @@
 from fastapi import APIRouter, HTTPException, Request
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from app.models import Post, post_tag_m2m_table, Tag
 from app.database import db_dep
 from app.schemas import PostListResponse, PostCreateRequest, PostUpdateRequest
 from app.utils import generate_slug
 from app.limiter import limiter
+from app.dependencies import lang_dep
 
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
 @router.get("/", response_model=list[PostListResponse])
-@limiter.limit("2/minute")
+@limiter.limit("30/minute")
 async def get_posts(
     request: Request,
     session: db_dep,
+    lang: lang_dep,
     is_active: bool | None = None,
     category_id: int | None = None,
     tag_id: int | None = None,
 ):
     stmt = (
-        select(Post)
-        .join(post_tag_m2m_table, Post.id == post_tag_m2m_table.c.post_id)
-        .join(Tag, post_tag_m2m_table.c.tag_id == Tag.id)
+        select(
+            Post.id,
+            func.coalesce(
+                getattr(Post, f"title_{lang}"),
+                getattr(Post, "title"),
+            ).label("title"),
+            Post.slug,
+            func.coalesce(
+                getattr(Post, f"body_{lang}"),
+                getattr(Post, "body"),
+            ).label("body"),
+            Post.is_active,
+            Post.created_at,
+        )
+        .outerjoin(post_tag_m2m_table, Post.id == post_tag_m2m_table.c.post_id)
+        .outerjoin(Tag, post_tag_m2m_table.c.tag_id == Tag.id)
     )
 
     if is_active is not None:
@@ -37,7 +52,7 @@ async def get_posts(
 
     stmt = stmt.order_by(Post.created_at.desc())
     res = session.execute(stmt)
-    return res.scalars().all()
+    return res.mappings().all()
 
 
 @router.get("/{slug}/", response_model=PostListResponse)

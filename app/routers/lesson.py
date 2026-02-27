@@ -1,8 +1,9 @@
 from typing import Annotated
 from pathlib import Path
 import shutil
+import asyncio
 
-from fastapi import APIRouter, Header, HTTPException, Form, UploadFile
+from fastapi import APIRouter, Header, HTTPException, Form, UploadFile, WebSocket
 from fastapi.responses import HTMLResponse
 from sqlalchemy import select
 
@@ -102,3 +103,12 @@ async def test_exception():
 @router.get("/htmlres/", response_class=HTMLResponse)
 async def html_resp():
     return "<h1>HTML Response</h1>"
+
+
+@router.websocket("/ws/")
+async def test_ws(ws: WebSocket):
+    await ws.accept()
+
+    while True:
+        await ws.send_text("Eshmat!")
+        await asyncio.sleep(1)
